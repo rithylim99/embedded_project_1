@@ -3,6 +3,7 @@
 #include "driver/i2c.h"
 #include "driver/gpio.h"
 #include "driver/adc.h"
+#include "esp_adc_cal.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -18,6 +19,11 @@
 #define I2C_MASTER_SDA_IO      19
 #define I2C_MASTER_FREQ_HZ     100000
 
+// ADC Configuration
+#define ADC_CHANNEL ADC_CHANNEL_2 // GPIO2
+#define ADC_WIDTH   ADC_WIDTH_BIT_12
+#define ADC_ATTEN   ADC_ATTEN_DB_0
+
 //KY-003 Configuration
 #define KY003_PIN GPIO_NUM_6
 
@@ -32,6 +38,7 @@ static bmp280_calib_data_t calib_data;
 
 static const char *TAG_BMP = "BMP280";
 static const char *TAG_KY = "KY003";
+static const char *TAG_SOIL = "SOIL";
 
 // I2C Master initialization
 void i2c_master_init() {
@@ -94,6 +101,10 @@ int32_t bmp280_compensate_temperature(int32_t adc_T, int32_t *t_fine) {
     return T;
 }
 
+float mapValue(int input, int in_min, int in_max, int out_min, int out_max) {
+    return ((float)(input - in_min) * (out_max - out_min) / (in_max - in_min)) + out_min;
+}
+
 void bmp280_task() {
     ESP_LOGI(TAG_BMP, "Initializing I2C...");
     i2c_master_init();
@@ -120,8 +131,8 @@ void bmp280_task() {
     }
 }
 
-void ky_003_task(){
-    gpio_config_t io_config = {
+void gpio_init(){
+        gpio_config_t io_config = {
         .mode = GPIO_MODE_INPUT,
         .pin_bit_mask = 1ULL << KY003_PIN,
         .intr_type = GPIO_INTR_DISABLE,
@@ -129,7 +140,10 @@ void ky_003_task(){
         .pull_up_en = 0x01
     };
     gpio_config(&io_config);
+}
 
+void ky_003_task(){
+    gpio_init();
     for(;;){
         int ky_003_state = gpio_get_level(KY003_PIN);
         if(ky_003_state == 0){
@@ -140,9 +154,20 @@ void ky_003_task(){
         vTaskDelay(1000/portTICK_PERIOD_MS);
 }
 }
+void soil_sensor_task(){
+    adc1_config_width(ADC_WIDTH);
+    adc1_config_channel_atten(ADC_CHANNEL, ADC_ATTEN);
+    for(;;){
+        int adc_value = adc1_get_raw(ADC_CHANNEL);
+        float soil_moisture = mapValue(adc_value, 0, 4095, 0, 100);
+        ESP_LOGI(TAG_SOIL, "Dry level: %.2f%%", soil_moisture);
+        vTaskDelay(2000/portTICK_PERIOD_MS);
+    }
+}
 
 // Main application
 void app_main() {
-    xTaskCreate(bmp280_task, "bmp280_task", 4096, NULL, 5, NULL);
-    xTaskCreate(ky_003_task, "ky_003_task", 4096, NULL, 5, NULL);
+    xTaskCreate(bmp280_task, "bmp280_task", 2048, NULL, 5, NULL);
+    xTaskCreate(ky_003_task, "ky_003_task", 2048, NULL, 5, NULL);
+    xTaskCreate(soil_sensor_task, "soil_sensor_task", 2048, NULL, 5, NULL);
 }
