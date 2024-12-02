@@ -2,7 +2,7 @@
 
 ## Description
 
-This project demonstrates the use of **ESP-IDF** and **FreeRTOS** for multitasking and sensor management on an ESP32 microcontroller. It integrates three sensors—**BMP280 (temperature sensor)**, **KY-003 (magnetic sensor)**, and an **ADC-based soil moisture sensor**—to monitor environmental conditions and log data efficiently. Each sensor operates as an independent FreeRTOS task, showcasing real-time multitasking in resource-constrained environments.
+This project demonstrates the use of **ESP-IDF** and **FreeRTOS** for multitasking and sensor management on an ESP32 microcontroller. It integrates three sensors **BMP280 (temperature sensor)**, **KY-003 (magnetic sensor)**, and an **ADC-based soil moisture sensor** to monitor environmental conditions and log data efficiently. Each sensor operates as an independent FreeRTOS task, showcasing real-time multitasking in resource-constrained environments.
 
 ## Features
 
@@ -54,4 +54,3 @@ This project demonstrates the use of **ESP-IDF** and **FreeRTOS** for multitaski
     ```bash
     idf.py monitor
     ```
-    
