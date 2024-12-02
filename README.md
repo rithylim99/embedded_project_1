@@ -1,35 +1,57 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C5 | ESP32-C6 | ESP32-H2 | ESP32-P4 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- | -------- | -------- |
+# Multi-Sensor Monitoring with ESP-IDF and FreeRTOS
 
-# _Sample project_
+## Description
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+This project demonstrates the use of **ESP-IDF** and **FreeRTOS** for multitasking and sensor management on an ESP32 microcontroller. It integrates three sensors—**BMP280 (temperature sensor)**, **KY-003 (magnetic sensor)**, and an **ADC-based soil moisture sensor**—to monitor environmental conditions and log data efficiently. Each sensor operates as an independent FreeRTOS task, showcasing real-time multitasking in resource-constrained environments.
 
-This is the simplest buildable example. The example is used by command `idf.py create-project`
-that copies the project to user specified path and set it's name. For more information follow the [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project)
+## Features
 
+- **BMP280 Temperature Monitoring**  
+   Reads temperature data using the BMP280 sensor via I2C, calibrates raw sensor data, and logs temperature in °C.
 
+- **KY-003 Magnetic Field Detection**  
+   Detects the presence or absence of a magnetic field and logs the state.
 
-## How to use example
-We encourage the users to use the example as a template for the new projects.
-A recommended way is to follow the instructions on a [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project).
+- **Soil Moisture Level Monitoring**  
+   Measures soil moisture using an ADC input and maps the raw ADC value to a percentage.
 
-## Example folder contents
+## Hardware Requirements
 
-The project **sample_project** contains one source file in C language [main.c](main/main.c). The file is located in folder [main](main).
+- **ESP32 Development Board**
+- **BMP280 Sensor** (I2C connection)
+- **KY-003 Magnetic Sensor**
+- **Soil Moisture Sensor** (ADC input)
 
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt`
-files that provide set of directives and instructions describing the project's source files and targets
-(executable, library, or both). 
+## Pin Configuration
 
-Below is short explanation of remaining files in the project folder.
+| Peripheral       | GPIO Pin          |
+|------------------|-------------------|
+| BMP280 I2C SDA   | GPIO 19           |
+| BMP280 I2C SCL   | GPIO 20           |
+| KY-003 Sensor    | GPIO 6            |
+| Soil Sensor ADC  | ADC Channel 2 (GPIO 2) |
 
-```
-├── CMakeLists.txt
-├── main
-│   ├── CMakeLists.txt
-│   └── main.c
-└── README.md                  This is the file you are currently reading
-```
-Additionally, the sample project contains Makefile and component.mk files, used for the legacy Make based build system. 
-They are not used or needed when building with CMake and idf.py.
+## Software Requirements
+
+- **ESP-IDF** (Espressif IoT Development Framework)
+- **FreeRTOS** (Built into ESP-IDF)
+
+## How to Use
+
+1. **Clone the Repository**  
+   Clone the repository to your local machine and navigate to the project directory.
+
+2. **Setup ESP-IDF**  
+   Follow the [ESP-IDF setup guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html) to configure your development environment.
+
+3. **Build and Flash**  
+   Run the following commands:
+   ```bash
+   idf.py build
+   idf.py flash
+    ```
+4. **Monitor Logs**
+    ```bash
+    idf.py monitor
+    ```
+    
